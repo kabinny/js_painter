@@ -5,6 +5,7 @@ const colors = document.getElementsByClassName("jsColor");
 const range = document.getElementById("jsRange");
 const mode = document.getElementById("jsMode");
 const saveBtn = document.getElementById("jsSave");
+const inputColor = document.getElementById("inputColor");
 
 const INITIAL_COLOR = "#2c2c2c";
 const CANVAS_SIZE = 700;
@@ -49,10 +50,22 @@ function onMouseMove(event) {
   }
 }
 
+function rgbToHex(colorval) {
+  let parts = colorval.match(/^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/);
+  delete(parts[0]);
+  for (let i = 1; i <= 3; ++i) {
+    parts[i] = parseInt(parts[i]).toString(16);
+    if (parts[i].length == 1) parts[i] = '0' + parts[i];
+  }
+  return '#' + parts.join('');
+}
+
 function handleColorClick(event) {
-  const color = event.target.style.backgroundColor;
+  let color = event.target.style.backgroundColor;
+  color = rgbToHex(color);
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
+  inputColor.value = color;
 }
 
 function handleRangeChange(event) {
@@ -88,6 +101,12 @@ function handleSaveClick(event) {
   link.click();
 }
 
+function handleInputColor(event) {
+  const color = event.target.value;
+  ctx.strokeStyle = color;
+  ctx.fillStyle = color;
+}
+
 if (canvas) {
   canvas.addEventListener("mousemove", onMouseMove);
   canvas.addEventListener("mousedown", startPainting);
@@ -109,4 +128,8 @@ if (mode) {
 
 if (saveBtn) {
   saveBtn.addEventListener("click", handleSaveClick);
+}
+
+if (inputColor) {
+  inputColor.addEventListener("input", handleInputColor);
 }
