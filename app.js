@@ -6,6 +6,7 @@ const range = document.getElementById("jsRange");
 const mode = document.getElementById("jsMode");
 const saveBtn = document.getElementById("jsSave");
 const inputColor = document.getElementById("inputColor");
+const rainbow = document.getElementById("rainbow");
 
 const INITIAL_COLOR = "#2c2c2c";
 const CANVAS_SIZE = 700;
@@ -24,15 +25,22 @@ ctx.lineWidth = 2.5; // 그 선의 너비가 2.5px
 
 let painting = false;
 let filling = false;
+let rainbowCheck = false;
+
+// rainbow
+let hue = 0;
+let lastX = 0;
+let lastY = 0;
 
 function stopPainting() {
   painting = false;
 }
 
-function startPainting() {
+function startPainting(e) {
   if (filling === false) {
     painting = true;
   }
+  [lastX, lastY] = [e.offsetX, e.offsetY];
 }
 
 function onMouseMove(event) {
@@ -45,8 +53,23 @@ function onMouseMove(event) {
     ctx.moveTo(x, y); // 패스의 시작 좌표를 옮긴다.
   } else {
     // console.log("creating line in ", x, y);
-    ctx.lineTo(x, y); // 패스의 끝 좌표
-    ctx.stroke(); // 선을 그린다.
+    if (rainbowCheck) {
+      ctx.strokeStyle = `hsl(${hue}, 100%, 50%)`;
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      // go  to
+      ctx.lineTo(x, y);
+      ctx.stroke();
+
+      [lastX, lastY] = [x, y];
+      hue++;
+      if(hue >= 360) {
+        hue = 0;
+      }
+    } else {
+      ctx.lineTo(x, y); // 패스의 끝 좌표
+      ctx.stroke(); // 선을 그린다.
+    }
   }
 }
 
@@ -61,6 +84,7 @@ function rgbToHex(colorval) {
 }
 
 function handleColorClick(event) {
+  rainbowCheck = false;
   let color = event.target.style.backgroundColor;
   color = rgbToHex(color);
   ctx.strokeStyle = color;
@@ -83,8 +107,15 @@ function handleModeClick() {
   }
 }
 
+function handleRainbow() {
+  rainbowCheck = !rainbowCheck;
+}
+
 function handleCanvasClick() {
-  if (filling) {
+  if (rainbowCheck && filling) {
+    alert("무지개 색은 그리기 모드에서만 사용 가능합니다.");
+  }
+  else if (filling) {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }
 }
@@ -132,4 +163,8 @@ if (saveBtn) {
 
 if (inputColor) {
   inputColor.addEventListener("input", handleInputColor);
+}
+
+if (rainbow) {
+  rainbow.addEventListener("click", handleRainbow);
 }
