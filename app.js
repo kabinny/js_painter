@@ -133,6 +133,7 @@ function handleSaveClick(event) {
 }
 
 function handleInputColor(event) {
+  rainbowCheck = false;
   const color = event.target.value;
   ctx.strokeStyle = color;
   ctx.fillStyle = color;
